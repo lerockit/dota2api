@@ -1,12 +1,14 @@
 import axios, { AxiosInstance } from 'axios'
 import { RequestError } from './error'
-import { IDota2Hero, IDota2HeroImage, IDota2Item } from './interfaces/dota2.interface'
+import { IDota2Hero, IDota2HeroImage, IDota2Item, IDota2HeroResponse } from './interfaces/dota2.interface'
 import { Scrap } from './scrap'
 
 export class Dota2 {
   private DOTA_URL = 'http://www.dota2.com'
+  private DOTA_WIKI_URL = 'https://dota2.gamepedia.com/'
   private DOTA_ITEM_IMG_URL = 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/items'
   private info: AxiosInstance
+  private wiki: AxiosInstance
   private heroesImages: IDota2HeroImage[]
   public heroesList: IDota2Hero[]
   public itemsList: IDota2Item[]
@@ -17,6 +19,9 @@ export class Dota2 {
       params: {
         l: 'portuguese',
       },
+    })
+    this.wiki = axios.create({
+      baseURL: this.DOTA_WIKI_URL,
     })
   }
 
@@ -104,5 +109,14 @@ export class Dota2 {
     if (!itemData) throw new RequestError('item not found')
 
     return { slug: item, ...itemData, img: this.itemImageLinkProvider(itemData.img) }
+  }
+
+  public async findHeroResponse(hero: string): Promise<IDota2HeroResponse> {
+    const heroCapitalized = hero.toLowerCase().replace(/^(\w)|_(\w)/g, (grp) => grp.toUpperCase())
+    const { data } = await this.wiki.get(`${heroCapitalized}`)
+
+    const heroResponse = new Scrap(data).scrapHeroResponse()
+
+    return heroResponse
   }
 }

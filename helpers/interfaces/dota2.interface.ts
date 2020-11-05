@@ -34,3 +34,7 @@ export interface IDota2Item {
   components: null
   created: boolean
 }
+
+export interface IDota2HeroResponse {
+  audio_url: string
+}

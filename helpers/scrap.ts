@@ -1,5 +1,5 @@
 import cheerio from 'cheerio'
-import { IDota2HeroImage } from './interfaces/dota2.interface'
+import { IDota2HeroImage, IDota2HeroResponse } from './interfaces/dota2.interface'
 
 export class Scrap {
   private html: string
@@ -35,5 +35,14 @@ export class Scrap {
       })
 
     return heroes
+  }
+
+  public scrapHeroResponse(): IDota2HeroResponse {
+    const $ = cheerio.load(this.html)
+    const responseURL = $('#heroBio').find('source')[0].attribs.src
+
+    console.log(responseURL)
+
+    return { audio_url: responseURL }
   }
 }
